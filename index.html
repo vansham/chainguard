@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ChainGuard — DeFi Wallet Risk Analyzer</title>
+    <title>ChainGuard — Multi-Chain DeFi Wallet Risk Analyzer</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
@@ -15,72 +15,28 @@
                         radial-gradient(ellipse at 80% 50%, rgba(168, 85, 247, 0.1) 0%, transparent 50%),
                         #0a0a0f;
         }
-        .card {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 16px;
-            backdrop-filter: blur(10px);
-        }
-        .input-field {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: white;
-            border-radius: 12px;
-            padding: 16px 20px;
-            width: 100%;
-            font-size: 15px;
-            outline: none;
-            transition: all 0.2s;
-            font-family: 'JetBrains Mono', monospace;
-        }
-        .input-field:focus {
-            border-color: rgba(99, 102, 241, 0.6);
-            background: rgba(99, 102, 241, 0.05);
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-        }
-        .btn-primary {
-            background: linear-gradient(135deg, #6366f1, #8b5cf6);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            padding: 16px 32px;
-            font-weight: 600;
-            font-size: 15px;
-            cursor: pointer;
-            transition: all 0.2s;
-            width: 100%;
-        }
-        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4); }
+        .card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; backdrop-filter: blur(10px); }
+        .input-field { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; border-radius: 12px; padding: 16px 20px; width: 100%; font-size: 15px; outline: none; transition: all 0.2s; font-family: 'JetBrains Mono', monospace; }
+        .input-field:focus { border-color: rgba(99,102,241,0.6); background: rgba(99,102,241,0.05); box-shadow: 0 0 0 3px rgba(99,102,241,0.1); }
+        .btn-primary { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; border: none; border-radius: 12px; padding: 16px 32px; font-weight: 600; font-size: 15px; cursor: pointer; transition: all 0.2s; width: 100%; }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 25px rgba(99,102,241,0.4); }
         .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .chain-btn { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.5); border-radius: 10px; padding: 8px 16px; font-size: 13px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 6px; }
+        .chain-btn:hover { background: rgba(99,102,241,0.15); border-color: rgba(99,102,241,0.4); color: white; }
+        .chain-btn.active { background: rgba(99,102,241,0.2); border-color: rgba(99,102,241,0.6); color: white; }
         .risk-meter-bg { background: rgba(255,255,255,0.05); border-radius: 999px; height: 12px; overflow: hidden; }
-        .risk-meter-fill { height: 100%; border-radius: 999px; transition: width 1.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
-        .score-circle {
-            width: 160px; height: 160px; border-radius: 50%;
-            display: flex; flex-direction: column; align-items: center;
-            justify-content: center; margin: 0 auto; position: relative;
-        }
+        .risk-meter-fill { height: 100%; border-radius: 999px; transition: width 1.5s cubic-bezier(0.34,1.56,0.64,1); }
+        .score-circle { width: 160px; height: 160px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto; position: relative; }
         .pulse-ring { position: absolute; inset: -8px; border-radius: 50%; animation: pulse 2s ease-in-out infinite; }
-        @keyframes pulse {
-            0%, 100% { opacity: 0.3; transform: scale(1); }
-            50% { opacity: 0.6; transform: scale(1.05); }
-        }
-        .loading-spinner {
-            border: 3px solid rgba(255,255,255,0.1);
-            border-top: 3px solid #6366f1;
-            border-radius: 50%; width: 40px; height: 40px;
-            animation: spin 0.8s linear infinite; margin: 0 auto;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes pulse { 0%,100%{opacity:.3;transform:scale(1)} 50%{opacity:.6;transform:scale(1.05)} }
+        .loading-spinner { border: 3px solid rgba(255,255,255,0.1); border-top: 3px solid #6366f1; border-radius: 50%; width: 40px; height: 40px; animation: spin .8s linear infinite; margin: 0 auto; }
+        @keyframes spin { to{transform:rotate(360deg)} }
         .tag { display: inline-block; padding: 4px 12px; border-radius: 999px; font-size: 12px; font-weight: 600; }
         .stat-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 16px; text-align: center; }
         .fade-in { animation: fadeIn 0.5s ease-in-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        .example-btn {
-            background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.2);
-            color: #a5b4fc; border-radius: 8px; padding: 6px 12px; font-size: 12px;
-            cursor: pointer; font-family: 'JetBrains Mono', monospace; transition: all 0.2s;
-        }
-        .example-btn:hover { background: rgba(99, 102, 241, 0.2); border-color: rgba(99, 102, 241, 0.4); }
+        @keyframes fadeIn { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+        .example-btn { background: rgba(99,102,241,0.1); border: 1px solid rgba(99,102,241,0.2); color: #a5b4fc; border-radius: 8px; padding: 6px 12px; font-size: 12px; cursor: pointer; font-family: 'JetBrains Mono', monospace; transition: all 0.2s; }
+        .example-btn:hover { background: rgba(99,102,241,0.2); border-color: rgba(99,102,241,0.4); }
     </style>
 </head>
 <body class="hero-gradient">
@@ -91,7 +47,7 @@
                 <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-lg">🛡️</div>
                 <div>
                     <div class="text-white font-bold text-lg leading-none">ChainGuard</div>
-                    <div class="text-white/40 text-xs mt-0.5">DeFi Wallet Risk Analyzer</div>
+                    <div class="text-white/40 text-xs mt-0.5">Multi-Chain DeFi Wallet Risk Analyzer</div>
                 </div>
             </div>
             <div class="flex items-center gap-2">
@@ -111,27 +67,40 @@
                 Is Your Wallet <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">Safe?</span>
             </h1>
             <p class="text-white/50 text-lg max-w-2xl mx-auto">
-                Enter any Ethereum wallet address and get an AI-powered risk assessment — verifiable on-chain via OpenGradient's TEE nodes.
+                Analyze any wallet across 6 major blockchains — verifiable on-chain via OpenGradient's TEE nodes.
             </p>
         </div>
 
         <div class="card p-6 mb-8">
-            <label class="text-white/60 text-sm font-medium mb-3 block">Ethereum Wallet Address</label>
-            <div class="flex gap-3 mb-4">
-                <input type="text" id="walletInput" class="input-field flex-1" placeholder="0x742d35Cc6634C0532925a3b8D4C9C0F3b1a9e2d1"/>
+            <!-- Chain Selector -->
+            <div class="mb-5">
+                <label class="text-white/60 text-sm font-medium mb-3 block">Select Blockchain</label>
+                <div class="flex flex-wrap gap-2" id="chainSelector">
+                    <button class="chain-btn active" onclick="selectChain('ethereum', this)">⟠ Ethereum</button>
+                    <button class="chain-btn" onclick="selectChain('polygon', this)">⬡ Polygon</button>
+                    <button class="chain-btn" onclick="selectChain('bnb', this)">◈ BNB Chain</button>
+                    <button class="chain-btn" onclick="selectChain('arbitrum', this)">🔵 Arbitrum</button>
+                    <button class="chain-btn" onclick="selectChain('optimism', this)">🔴 Optimism</button>
+                    <button class="chain-btn" onclick="selectChain('base', this)">🟦 Base</button>
+                </div>
             </div>
+
+            <label class="text-white/60 text-sm font-medium mb-3 block">Wallet Address</label>
+            <input type="text" id="walletInput" class="input-field mb-4" placeholder="0x742d35Cc6634C0532925a3b8D4C9C0F3b1a9e2d1"/>
+
             <div class="flex flex-wrap gap-2 mb-5">
                 <span class="text-white/30 text-xs self-center">Try examples:</span>
                 <button class="example-btn" onclick="setExample('0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045')">Vitalik.eth</button>
                 <button class="example-btn" onclick="setExample('0x742d35Cc6634C0532925a3b8D4C9C0F3b1a9e2d1')">Random Wallet</button>
             </div>
+
             <button id="analyzeBtn" class="btn-primary" onclick="analyzeWallet()">🔍 Analyze Wallet Risk</button>
         </div>
 
         <div id="loading" class="hidden card p-10 text-center mb-8">
             <div class="loading-spinner mb-5"></div>
             <div class="text-white font-semibold text-lg mb-2">Analyzing Wallet...</div>
-            <div class="text-white/40 text-sm" id="loadingText">Fetching blockchain data from Etherscan...</div>
+            <div class="text-white/40 text-sm" id="loadingText">Fetching blockchain data...</div>
             <div class="mt-6 flex justify-center gap-2 flex-wrap">
                 <div class="tag bg-indigo-500/20 text-indigo-400">📊 Fetching transactions</div>
                 <div class="tag bg-purple-500/20 text-purple-400">🤖 Running AI analysis</div>
@@ -151,6 +120,9 @@
 
         <div id="results" class="hidden fade-in">
 
+            <!-- Chain Badge -->
+            <div class="flex items-center gap-2 mb-4" id="chainBadge"></div>
+
             <div class="card p-8 mb-6 text-center">
                 <div class="text-white/50 text-sm font-medium mb-6 uppercase tracking-wider">Overall Risk Assessment</div>
                 <div class="score-circle mb-6" id="scoreCircle">
@@ -160,7 +132,7 @@
                 </div>
                 <div class="inline-block px-6 py-2 rounded-full text-lg font-bold mb-6" id="riskBadge">--</div>
                 <div class="risk-meter-bg mb-2">
-                    <div class="risk-meter-fill" id="riskMeter" style="width: 0%"></div>
+                    <div class="risk-meter-fill" id="riskMeter" style="width:0%"></div>
                 </div>
                 <div class="flex justify-between text-white/20 text-xs">
                     <span>SAFE</span><span>LOW</span><span>MEDIUM</span><span>HIGH</span><span>CRITICAL</span>
@@ -180,30 +152,20 @@
 
             <div class="grid md:grid-cols-2 gap-6 mb-6">
                 <div class="card p-6">
-                    <div class="flex items-center gap-2 mb-4">
-                        <span class="text-xl">⚠️</span>
-                        <h3 class="text-white font-semibold">Risk Factors</h3>
-                    </div>
+                    <div class="flex items-center gap-2 mb-4"><span class="text-xl">⚠️</span><h3 class="text-white font-semibold">Risk Factors</h3></div>
                     <ul class="space-y-3" id="riskFactors"></ul>
                 </div>
                 <div class="card p-6">
-                    <div class="flex items-center gap-2 mb-4">
-                        <span class="text-xl">✅</span>
-                        <h3 class="text-white font-semibold">Positive Signals</h3>
-                    </div>
+                    <div class="flex items-center gap-2 mb-4"><span class="text-xl">✅</span><h3 class="text-white font-semibold">Positive Signals</h3></div>
                     <ul class="space-y-3" id="positiveSignals"></ul>
                 </div>
             </div>
 
             <div class="card p-6 mb-6">
-                <div class="flex items-center gap-2 mb-4">
-                    <span class="text-xl">💡</span>
-                    <h3 class="text-white font-semibold text-lg">Recommendations</h3>
-                </div>
+                <div class="flex items-center gap-2 mb-4"><span class="text-xl">💡</span><h3 class="text-white font-semibold text-lg">Recommendations</h3></div>
                 <ul class="space-y-3" id="recommendations"></ul>
             </div>
 
-            <!-- Footer - subtle, no AI mention -->
             <div class="flex items-center justify-center gap-2 py-4 opacity-40">
                 <span class="text-xs text-white">🔐 Secured by</span>
                 <span class="text-xs text-indigo-400 font-medium">OpenGradient TEE</span>
@@ -212,12 +174,18 @@
                 <span class="text-white/20 text-xs">·</span>
                 <span class="text-xs text-white">On-chain Verified</span>
             </div>
-
         </div>
     </main>
 
     <script>
         const BACKEND_URL = 'https://web-production-bae3b.up.railway.app';
+        let selectedChain = 'ethereum';
+
+        function selectChain(chain, btn) {
+            selectedChain = chain;
+            document.querySelectorAll('.chain-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
 
         function setExample(address) {
             document.getElementById('walletInput').value = address;
@@ -240,41 +208,34 @@
             document.getElementById('errorBox').classList.add('hidden');
             document.getElementById('analyzeBtn').disabled = true;
 
-            const loadingTexts = [
-                'Fetching blockchain data from Etherscan...',
+            const texts = [
+                'Fetching blockchain data...',
                 'Analyzing transaction patterns...',
                 'Running AI risk assessment on OpenGradient TEE...',
                 'Generating verifiable risk report...'
             ];
-            let ltIndex = 0;
-            const ltInterval = setInterval(() => {
-                ltIndex = (ltIndex + 1) % loadingTexts.length;
-                document.getElementById('loadingText').textContent = loadingTexts[ltIndex];
+            let i = 0;
+            const interval = setInterval(() => {
+                i = (i + 1) % texts.length;
+                document.getElementById('loadingText').textContent = texts[i];
             }, 2000);
 
             try {
                 const response = await fetch(`${BACKEND_URL}/analyze`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ address })
+                    body: JSON.stringify({ address, chain: selectedChain })
                 });
-
                 const data = await response.json();
-                clearInterval(ltInterval);
-
-                if (!response.ok || !data.success) {
-                    throw new Error(data.error || 'Analysis failed');
-                }
-
+                clearInterval(interval);
+                if (!response.ok || !data.success) throw new Error(data.error || 'Analysis failed');
                 displayResults(data);
-
             } catch (err) {
-                clearInterval(ltInterval);
+                clearInterval(interval);
                 document.getElementById('loading').classList.add('hidden');
                 document.getElementById('errorBox').classList.remove('hidden');
                 document.getElementById('errorMsg').textContent = err.message;
             }
-
             document.getElementById('analyzeBtn').disabled = false;
         }
 
@@ -283,10 +244,16 @@
             document.getElementById('results').classList.remove('hidden');
 
             const analysis = data.analysis;
-            // FIX: backend wallet_stats use karo
             const walletData = data.wallet_stats || {};
+            const chain = data.chain || {};
             const score = analysis.risk_score || 0;
             const colors = getRiskColor(score);
+
+            // Chain badge
+            document.getElementById('chainBadge').innerHTML = `
+                <div class="tag bg-indigo-500/15 text-indigo-400">${chain.name || selectedChain}</div>
+                <span class="text-white/30 text-xs">${data.address}</span>
+            `;
 
             document.getElementById('scoreNumber').textContent = score;
             const circle = document.getElementById('scoreCircle');
@@ -306,9 +273,8 @@
                 meter.style.background = `linear-gradient(90deg, #10b981, ${colors.color})`;
             }, 100);
 
-            // Stats - wallet_stats se sahi data
             const stats = [
-                { label: 'ETH Balance', value: walletData.eth_balance || '0 ETH', icon: '💰' },
+                { label: `${chain.symbol || 'ETH'} Balance`, value: walletData.eth_balance || '0', icon: '💰' },
                 { label: 'Transactions', value: walletData.total_transactions ?? '--', icon: '📊' },
                 { label: 'Failed TXs', value: walletData.failed_transactions ?? '--', icon: '❌' },
                 { label: 'Token Transfers', value: walletData.token_transfers ?? '--', icon: '🪙' }
@@ -325,7 +291,7 @@
             document.getElementById('summaryText').textContent = analysis.summary || 'Analysis complete.';
 
             document.getElementById('riskFactors').innerHTML =
-                (analysis.risk_factors?.length ? analysis.risk_factors : ['No major risk factors detected'])
+                (analysis.risk_factors?.length ? analysis.risk_factors : ['No major risk factors'])
                 .map(f => `<li class="flex items-start gap-2"><span class="text-red-400 mt-0.5 shrink-0">⚠</span><span class="text-white/70 text-sm">${f}</span></li>`).join('');
 
             document.getElementById('positiveSignals').innerHTML =

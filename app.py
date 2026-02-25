@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, send_file, send_file
+from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 import opengradient as og
 from web3 import Web3
@@ -18,9 +18,8 @@ ETHERSCAN_API_KEY = os.getenv('ETHERSCAN_API_KEY')
 # Initialize OpenGradient client
 client = og.Client(private_key=PRIVATE_KEY)
 
-# One time token approval
 try:
-    opg_amount = Web3.to_wei(1, "ether")
+    opg_amount = Web3.to_wei(0.1, 'ether')
     client.llm.ensure_opg_approval(opg_amount)
     print("OPG approval successful!")
 except Exception as e:
@@ -28,33 +27,83 @@ except Exception as e:
 
 
 # =============================================
-# TOOL FUNCTIONS - Agent yeh call karta hai
+# MULTI-CHAIN CONFIG
 # =============================================
 
-def fetch_eth_balance(address: str) -> str:
-    """Fetch ETH balance from Etherscan"""
+CHAINS = {
+    "ethereum": {
+        "id": "1",
+        "name": "Ethereum",
+        "symbol": "ETH",
+        "explorer": "https://etherscan.io"
+    },
+    "polygon": {
+        "id": "137",
+        "name": "Polygon",
+        "symbol": "MATIC",
+        "explorer": "https://polygonscan.com"
+    },
+    "bnb": {
+        "id": "56",
+        "name": "BNB Chain",
+        "symbol": "BNB",
+        "explorer": "https://bscscan.com"
+    },
+    "arbitrum": {
+        "id": "42161",
+        "name": "Arbitrum",
+        "symbol": "ETH",
+        "explorer": "https://arbiscan.io"
+    },
+    "optimism": {
+        "id": "10",
+        "name": "Optimism",
+        "symbol": "ETH",
+        "explorer": "https://optimistic.etherscan.io"
+    },
+    "base": {
+        "id": "8453",
+        "name": "Base",
+        "symbol": "ETH",
+        "explorer": "https://basescan.org"
+    }
+}
+
+
+# =============================================
+# TOOL FUNCTIONS
+# =============================================
+
+def fetch_eth_balance(address: str, chain_id: str) -> str:
     try:
         res = requests.get("https://api.etherscan.io/v2/api", params={
-            "module": "account", "action": "balance",
-            "address": address, "tag": "latest",
-            "chainid": "1", "apikey": ETHERSCAN_API_KEY
+            "chainid": chain_id,
+            "module": "account",
+            "action": "balance",
+            "address": address,
+            "tag": "latest",
+            "apikey": ETHERSCAN_API_KEY
         })
         data = res.json()
         if data["status"] == "1":
-            eth = round(int(data["result"]) / 1e18, 4)
-            return f"{eth} ETH"
-        return "0 ETH"
+            bal = round(int(data["result"]) / 1e18, 4)
+            return str(bal)
+        return "0"
     except:
-        return "Error fetching balance"
+        return "0"
 
 
-def fetch_transactions(address: str) -> dict:
-    """Fetch transaction history from Etherscan"""
+def fetch_transactions(address: str, chain_id: str) -> dict:
     try:
         res = requests.get("https://api.etherscan.io/v2/api", params={
-            "module": "account", "action": "txlist",
-            "address": address, "page": 1, "offset": 20,
-            "sort": "desc", "chainid": "1", "apikey": ETHERSCAN_API_KEY
+            "chainid": chain_id,
+            "module": "account",
+            "action": "txlist",
+            "address": address,
+            "page": 1,
+            "offset": 20,
+            "sort": "desc",
+            "apikey": ETHERSCAN_API_KEY
         })
         txs = res.json().get("result", [])
         if not isinstance(txs, list):
@@ -72,17 +121,21 @@ def fetch_transactions(address: str) -> dict:
         return {"total": 0, "failed": 0, "contracts": 0, "failed_rate": 0}
 
 
-def fetch_tokens(address: str) -> dict:
-    """Fetch ERC20 token interactions from Etherscan"""
+def fetch_tokens(address: str, chain_id: str) -> dict:
     try:
         res = requests.get("https://api.etherscan.io/v2/api", params={
-            "module": "account", "action": "tokentx",
-            "address": address, "page": 1, "offset": 30,
-            "sort": "desc", "chainid": "1", "apikey": ETHERSCAN_API_KEY
+            "chainid": chain_id,
+            "module": "account",
+            "action": "tokentx",
+            "address": address,
+            "page": 1,
+            "offset": 30,
+            "sort": "desc",
+            "apikey": ETHERSCAN_API_KEY
         })
         txs = res.json().get("result", [])
         if not isinstance(txs, list):
-            return {"count": 0, "tokens": [], "suspicious": 0}
+            return {"count": 0, "tokens": [], "unique": 0, "suspicious": 0}
         tokens = {}
         for tx in txs:
             sym = tx.get("tokenSymbol", "UNKNOWN")
@@ -95,236 +148,198 @@ def fetch_tokens(address: str) -> dict:
             "suspicious": suspicious
         }
     except:
-        return {"count": 0, "tokens": [], "suspicious": 0}
+        return {"count": 0, "tokens": [], "unique": 0, "suspicious": 0}
 
 
 # =============================================
-# TOOL DEFINITIONS for OpenGradient Agent
+# TOOL DEFINITIONS
 # =============================================
 
-TOOLS = [
-    {
-        "type": "function",
-        "function": {
-            "name": "get_wallet_balance",
-            "description": "Get the ETH balance of an Ethereum wallet address",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "address": {
-                        "type": "string",
-                        "description": "The Ethereum wallet address (0x...)"
-                    }
-                },
-                "required": ["address"]
+def get_tools(chain_name: str, symbol: str):
+    return [
+        {
+            "type": "function",
+            "function": {
+                "name": "get_wallet_balance",
+                "description": f"Get the {symbol} balance of a wallet on {chain_name}",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "address": {"type": "string", "description": "Wallet address"}
+                    },
+                    "required": ["address"]
+                }
+            }
+        },
+        {
+            "type": "function",
+            "function": {
+                "name": "get_transaction_history",
+                "description": f"Get transaction history on {chain_name}",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "address": {"type": "string", "description": "Wallet address"}
+                    },
+                    "required": ["address"]
+                }
+            }
+        },
+        {
+            "type": "function",
+            "function": {
+                "name": "get_token_interactions",
+                "description": f"Get token interactions on {chain_name}",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "address": {"type": "string", "description": "Wallet address"}
+                    },
+                    "required": ["address"]
+                }
             }
         }
-    },
-    {
-        "type": "function",
-        "function": {
-            "name": "get_transaction_history",
-            "description": "Get transaction history and analyze patterns like failed transactions",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "address": {
-                        "type": "string",
-                        "description": "The Ethereum wallet address"
-                    }
-                },
-                "required": ["address"]
-            }
-        }
-    },
-    {
-        "type": "function",
-        "function": {
-            "name": "get_token_interactions",
-            "description": "Analyze ERC20 token interactions to detect risky or suspicious tokens",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "address": {
-                        "type": "string",
-                        "description": "The Ethereum wallet address"
-                    }
-                },
-                "required": ["address"]
-            }
-        }
-    }
-]
+    ]
 
 
-def execute_tool(tool_name: str, tool_args: dict) -> str:
-    """Execute a tool and return result as string"""
+def execute_tool(tool_name: str, tool_args: dict, chain_id: str, symbol: str) -> str:
     address = tool_args.get("address", "")
-
     if tool_name == "get_wallet_balance":
-        result = fetch_eth_balance(address)
-        return f"ETH Balance: {result}"
-
+        bal = fetch_eth_balance(address, chain_id)
+        return f"Balance: {bal} {symbol}"
     elif tool_name == "get_transaction_history":
-        data = fetch_transactions(address)
+        data = fetch_transactions(address, chain_id)
         return f"""Transaction History:
-- Total Transactions: {data['total']}
-- Failed Transactions: {data['failed']}
+- Total: {data['total']}
+- Failed: {data['failed']}
 - Failed Rate: {data['failed_rate']}%
-- Unique Contracts Interacted: {data['contracts']}
-- Activity Level: {'Active' if data['total'] > 10 else 'Low Activity' if data['total'] > 0 else 'New/Empty Wallet'}"""
-
+- Unique Contracts: {data['contracts']}
+- Activity: {'Active' if data['total'] > 10 else 'Low' if data['total'] > 0 else 'New Wallet'}"""
     elif tool_name == "get_token_interactions":
-        data = fetch_tokens(address)
+        data = fetch_tokens(address, chain_id)
         return f"""Token Interactions:
-- Total Token Transfers: {data['count']}
-- Unique Tokens: {data.get('unique', 0)}
-- Tokens Found: {', '.join(data['tokens']) if data['tokens'] else 'None'}
-- Suspicious/Unknown Tokens: {data['suspicious']}
-- Token Risk: {'HIGH - many suspicious tokens' if data['suspicious'] > 3 else 'LOW - mostly known tokens'}"""
-
+- Total Transfers: {data['count']}
+- Unique Tokens: {data['unique']}
+- Tokens: {', '.join(data['tokens']) if data['tokens'] else 'None'}
+- Suspicious: {data['suspicious']}
+- Risk: {'HIGH' if data['suspicious'] > 3 else 'LOW'}"""
     return "Tool not found"
 
 
 # =============================================
-# AGENT LOOP - OpenGradient TEE Verified!
+# AGENT LOOP
 # =============================================
 
-def run_agent(address: str):
-    """
-    Real agent loop:
-    1. LLM decides which tool to call
-    2. Tool executes (Etherscan fetch)
-    3. Result goes back to LLM
-    4. Repeat until final answer
-    5. All via OpenGradient TEE - verified!
-    """
-    
+def run_agent(address: str, chain: dict):
     messages = [
         {
             "role": "system",
-            "content": """You are ChainGuard, an expert DeFi wallet security analyzer.
-You have access to blockchain tools. Use them to analyze wallets thoroughly.
-Always use ALL available tools before giving your final risk assessment.
-Be specific and data-driven."""
+            "content": f"You are ChainGuard, a DeFi wallet security analyzer for {chain['name']} blockchain. Use tools to analyze wallets. Be specific and data-driven."
         },
         {
             "role": "user",
-            "content": f"""Analyze this Ethereum wallet: {address}
+            "content": f"""Analyze this {chain['name']} wallet: {address}
 
-Use your tools to gather data, then provide:
+Use all tools, then provide:
 
 RISK_SCORE: [0-100]
 RISK_LEVEL: [SAFE / LOW RISK / MEDIUM RISK / HIGH RISK / CRITICAL]
 
 SUMMARY:
-[2-3 sentences about wallet health]
+[2-3 sentences about wallet health on {chain['name']}]
 
 RISK_FACTORS:
-- [specific risk based on data]
-- [specific risk based on data]
+- [risk 1]
+- [risk 2]
 
 POSITIVE_SIGNALS:
-- [positive finding]
-- [positive finding]
+- [positive 1]
+- [positive 2]
 
 RECOMMENDATIONS:
-- [actionable advice 1]
-- [actionable advice 2]
-- [actionable advice 3]
-
-Risk scoring guide:
-- 0-20: Safe wallet, good history
-- 21-40: Low risk, minor concerns
-- 41-60: Medium risk, some issues
-- 61-80: High risk, significant issues
-- 81-100: Critical, very risky"""
+- [action 1]
+- [action 2]
+- [action 3]"""
         }
     ]
 
     tools_used = []
-    max_iterations = 6  # Prevent infinite loop
+    TOOLS = get_tools(chain['name'], chain['symbol'])
 
-    for iteration in range(max_iterations):
-        # Call OpenGradient LLM - TEE verified!
+    for _ in range(6):
         result = client.llm.chat(
             model="openai/gpt-4o",
             messages=messages,
             tools=TOOLS
         )
-
         response = result.chat_output
 
-        # Check if agent wants to use a tool
         if response.get('tool_calls'):
-            # Process each tool call
             tool_results = []
-            for tool_call in response['tool_calls']:
-                tool_name = tool_call['function']['name']
-                tool_args = json.loads(tool_call['function']['arguments'])
-                
-                print(f"Agent calling tool: {tool_name} with {tool_args}")
-                tools_used.append(tool_name)
-                
-                # Execute the tool
-                tool_result = execute_tool(tool_name, tool_args)
-                
+            for tc in response['tool_calls']:
+                name = tc['function']['name']
+                args = json.loads(tc['function']['arguments'])
+                tools_used.append(name)
+                tool_result = execute_tool(name, args, chain['id'], chain['symbol'])
                 tool_results.append({
                     "role": "tool",
-                    "tool_call_id": tool_call['id'],
+                    "tool_call_id": tc['id'],
                     "content": tool_result
                 })
-
-            # Add assistant message with tool calls
             messages.append({"role": "assistant", "content": None, "tool_calls": response['tool_calls']})
-            # Add tool results
             messages.extend(tool_results)
-
         else:
-            # Agent gave final answer - no more tool calls
-            final_answer = response.get('content', '')
-            return final_answer, tools_used
+            return response.get('content', ''), tools_used
 
-    # If max iterations reached, get final answer
-    result = client.llm.chat(
-        model="openai/gpt-4o",
-        messages=messages
-    )
+    result = client.llm.chat(model="openai/gpt-4o", messages=messages)
     return result.chat_output.get('content', 'Analysis complete'), tools_used
 
 
 # =============================================
-# API ENDPOINTS
+# API
 # =============================================
+
+@app.route('/')
+def home():
+    return send_file('index.html')
+
+
+@app.route('/chains', methods=['GET'])
+def get_chains():
+    return jsonify({"chains": CHAINS})
+
 
 @app.route('/analyze', methods=['POST'])
 def analyze_wallet():
     try:
         data = request.json
         address = data.get('address', '').strip()
+        chain_key = data.get('chain', 'ethereum').lower()
 
         if not address:
             return jsonify({"error": "Wallet address required"}), 400
         if not address.startswith('0x') or len(address) != 42:
-            return jsonify({"error": "Invalid Ethereum address format"}), 400
+            return jsonify({"error": "Invalid address format"}), 400
+        if chain_key not in CHAINS:
+            return jsonify({"error": "Unsupported chain"}), 400
 
-        # Run the agent!
-        final_answer, tools_used = run_agent(address)
+        chain = CHAINS[chain_key]
 
-        # Also get raw wallet data for stats
-        tx_data = fetch_transactions(address)
-        token_data = fetch_tokens(address)
-        eth_balance = fetch_eth_balance(address)
+        final_answer, tools_used = run_agent(address, chain)
 
-        # Parse agent response
+        tx_data = fetch_transactions(address, chain['id'])
+        token_data = fetch_tokens(address, chain['id'])
+        balance = fetch_eth_balance(address, chain['id'])
+
         parsed = parse_response(final_answer)
         parsed["tools_used"] = tools_used
 
         return jsonify({
             "success": True,
             "address": address,
+            "chain": chain,
             "wallet_stats": {
-                "eth_balance": eth_balance,
+                "eth_balance": f"{balance} {chain['symbol']}",
                 "total_transactions": tx_data["total"],
                 "failed_transactions": tx_data["failed"],
                 "failed_rate": tx_data["failed_rate"],
@@ -334,11 +349,9 @@ def analyze_wallet():
             "analysis": parsed,
             "agent_info": {
                 "tools_called": tools_used,
-                "tools_count": len(tools_used),
                 "powered_by": "OpenGradient Verifiable AI",
                 "inference_type": "TEE-Secured (AWS Nitro Enclave)",
-                "payment": "x402 Protocol on Base Sepolia",
-                "verification": "On-chain hash stored"
+                "payment": "x402 Protocol"
             }
         })
 
@@ -364,8 +377,7 @@ def parse_response(text):
                 nums = ''.join(filter(str.isdigit, line.split(":", 1)[1]))
                 parsed["risk_score"] = min(100, max(0, int(nums)))
             except: pass
-        elif line.startswith("RISK_LEVEL:"):
-            parsed["risk_level"] = line.split(":", 1)[1].strip()
+        elif line.startswith("RISK_LEVEL:"): parsed["risk_level"] = line.split(":", 1)[1].strip()
         elif line.startswith("SUMMARY:"): current = "summary"
         elif line.startswith("RISK_FACTORS:"): current = "risk_factors"
         elif line.startswith("POSITIVE_SIGNALS:"): current = "positive_signals"
@@ -380,17 +392,11 @@ def parse_response(text):
 @app.route('/health', methods=['GET'])
 def health():
     return jsonify({
-        "status": "ChainGuard Agent running!",
-        "agent": "OpenGradient Tool-Use Agent",
-        "tools": ["get_wallet_balance", "get_transaction_history", "get_token_interactions"],
-        "inference": "TEE-Secured via OpenGradient",
-        "payment": "x402 Protocol"
+        "status": "ChainGuard Multi-Chain Agent running!",
+        "chains": list(CHAINS.keys()),
+        "powered_by": "OpenGradient Verifiable AI"
     })
 
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
-
-@app.route('/')
-def home():
-    return send_file('index.html')
