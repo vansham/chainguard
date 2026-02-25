@@ -7,28 +7,20 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
-        
         * { font-family: 'Inter', sans-serif; }
         .mono { font-family: 'JetBrains Mono', monospace; }
-        
-        body {
-            background: #0a0a0f;
-            min-height: 100vh;
-        }
-        
+        body { background: #0a0a0f; min-height: 100vh; }
         .hero-gradient {
             background: radial-gradient(ellipse at 50% 0%, rgba(99, 102, 241, 0.15) 0%, transparent 70%),
                         radial-gradient(ellipse at 80% 50%, rgba(168, 85, 247, 0.1) 0%, transparent 50%),
                         #0a0a0f;
         }
-        
         .card {
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 16px;
             backdrop-filter: blur(10px);
         }
-        
         .input-field {
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -41,13 +33,11 @@
             transition: all 0.2s;
             font-family: 'JetBrains Mono', monospace;
         }
-        
         .input-field:focus {
             border-color: rgba(99, 102, 241, 0.6);
             background: rgba(99, 102, 241, 0.05);
             box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
         }
-        
         .btn-primary {
             background: linear-gradient(135deg, #6366f1, #8b5cf6);
             color: white;
@@ -60,115 +50,41 @@
             transition: all 0.2s;
             width: 100%;
         }
-        
-        .btn-primary:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
-        }
-        
-        .btn-primary:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-        }
-        
-        .risk-meter-bg {
-            background: rgba(255,255,255,0.05);
-            border-radius: 999px;
-            height: 12px;
-            overflow: hidden;
-        }
-        
-        .risk-meter-fill {
-            height: 100%;
-            border-radius: 999px;
-            transition: width 1.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-        
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4); }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .risk-meter-bg { background: rgba(255,255,255,0.05); border-radius: 999px; height: 12px; overflow: hidden; }
+        .risk-meter-fill { height: 100%; border-radius: 999px; transition: width 1.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
         .score-circle {
-            width: 160px;
-            height: 160px;
-            border-radius: 50%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto;
-            position: relative;
+            width: 160px; height: 160px; border-radius: 50%;
+            display: flex; flex-direction: column; align-items: center;
+            justify-content: center; margin: 0 auto; position: relative;
         }
-        
-        .pulse-ring {
-            position: absolute;
-            inset: -8px;
-            border-radius: 50%;
-            animation: pulse 2s ease-in-out infinite;
-        }
-        
+        .pulse-ring { position: absolute; inset: -8px; border-radius: 50%; animation: pulse 2s ease-in-out infinite; }
         @keyframes pulse {
             0%, 100% { opacity: 0.3; transform: scale(1); }
             50% { opacity: 0.6; transform: scale(1.05); }
         }
-        
         .loading-spinner {
             border: 3px solid rgba(255,255,255,0.1);
             border-top: 3px solid #6366f1;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 0.8s linear infinite;
-            margin: 0 auto;
+            border-radius: 50%; width: 40px; height: 40px;
+            animation: spin 0.8s linear infinite; margin: 0 auto;
         }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        .tag {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 999px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-        
-        .stat-card {
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.06);
-            border-radius: 12px;
-            padding: 16px;
-            text-align: center;
-        }
-        
-        .fade-in {
-            animation: fadeIn 0.5s ease-in-out;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .tag { display: inline-block; padding: 4px 12px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+        .stat-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 16px; text-align: center; }
+        .fade-in { animation: fadeIn 0.5s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         .example-btn {
-            background: rgba(99, 102, 241, 0.1);
-            border: 1px solid rgba(99, 102, 241, 0.2);
-            color: #a5b4fc;
-            border-radius: 8px;
-            padding: 6px 12px;
-            font-size: 12px;
-            cursor: pointer;
-            font-family: 'JetBrains Mono', monospace;
-            transition: all 0.2s;
+            background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.2);
+            color: #a5b4fc; border-radius: 8px; padding: 6px 12px; font-size: 12px;
+            cursor: pointer; font-family: 'JetBrains Mono', monospace; transition: all 0.2s;
         }
-        
-        .example-btn:hover {
-            background: rgba(99, 102, 241, 0.2);
-            border-color: rgba(99, 102, 241, 0.4);
-        }
+        .example-btn:hover { background: rgba(99, 102, 241, 0.2); border-color: rgba(99, 102, 241, 0.4); }
     </style>
 </head>
 <body class="hero-gradient">
 
-    <!-- Header -->
     <header class="border-b border-white/5 px-6 py-4">
         <div class="max-w-4xl mx-auto flex items-center justify-between">
             <div class="flex items-center gap-3">
@@ -187,7 +103,6 @@
 
     <main class="max-w-4xl mx-auto px-6 py-12">
 
-        <!-- Hero -->
         <div class="text-center mb-12">
             <div class="inline-flex items-center gap-2 bg-indigo-500/10 border border-indigo-500/20 rounded-full px-4 py-2 mb-6">
                 <span class="text-indigo-400 text-sm font-medium">🔍 Verifiable AI Analysis via TEE</span>
@@ -200,43 +115,30 @@
             </p>
         </div>
 
-        <!-- Input Card -->
         <div class="card p-6 mb-8">
             <label class="text-white/60 text-sm font-medium mb-3 block">Ethereum Wallet Address</label>
             <div class="flex gap-3 mb-4">
-                <input 
-                    type="text" 
-                    id="walletInput" 
-                    class="input-field flex-1" 
-                    placeholder="0x742d35Cc6634C0532925a3b8D4C9C0F3b1a9e2d1"
-                />
+                <input type="text" id="walletInput" class="input-field flex-1" placeholder="0x742d35Cc6634C0532925a3b8D4C9C0F3b1a9e2d1"/>
             </div>
-            
-            <!-- Example Wallets -->
             <div class="flex flex-wrap gap-2 mb-5">
                 <span class="text-white/30 text-xs self-center">Try examples:</span>
                 <button class="example-btn" onclick="setExample('0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045')">Vitalik.eth</button>
                 <button class="example-btn" onclick="setExample('0x742d35Cc6634C0532925a3b8D4C9C0F3b1a9e2d1')">Random Wallet</button>
             </div>
-
-            <button id="analyzeBtn" class="btn-primary" onclick="analyzeWallet()">
-                🔍 Analyze Wallet Risk
-            </button>
+            <button id="analyzeBtn" class="btn-primary" onclick="analyzeWallet()">🔍 Analyze Wallet Risk</button>
         </div>
 
-        <!-- Loading -->
         <div id="loading" class="hidden card p-10 text-center mb-8">
             <div class="loading-spinner mb-5"></div>
             <div class="text-white font-semibold text-lg mb-2">Analyzing Wallet...</div>
             <div class="text-white/40 text-sm" id="loadingText">Fetching blockchain data from Etherscan...</div>
-            <div class="mt-6 flex justify-center gap-2 flex-wrap" id="loadingSteps">
+            <div class="mt-6 flex justify-center gap-2 flex-wrap">
                 <div class="tag bg-indigo-500/20 text-indigo-400">📊 Fetching transactions</div>
                 <div class="tag bg-purple-500/20 text-purple-400">🤖 Running AI analysis</div>
                 <div class="tag bg-emerald-500/20 text-emerald-400">🔐 TEE verification</div>
             </div>
         </div>
 
-        <!-- Error -->
         <div id="errorBox" class="hidden card p-6 mb-8 border-red-500/20">
             <div class="flex items-center gap-3">
                 <span class="text-2xl">❌</span>
@@ -247,37 +149,26 @@
             </div>
         </div>
 
-        <!-- Results -->
         <div id="results" class="hidden fade-in">
 
-            <!-- Risk Score Card -->
             <div class="card p-8 mb-6 text-center">
                 <div class="text-white/50 text-sm font-medium mb-6 uppercase tracking-wider">Overall Risk Assessment</div>
-                
                 <div class="score-circle mb-6" id="scoreCircle">
                     <div class="pulse-ring" id="pulseRing"></div>
                     <div class="text-5xl font-bold text-white mono relative z-10" id="scoreNumber">--</div>
                     <div class="text-white/50 text-sm relative z-10">/100</div>
                 </div>
-                
                 <div class="inline-block px-6 py-2 rounded-full text-lg font-bold mb-6" id="riskBadge">--</div>
-                
                 <div class="risk-meter-bg mb-2">
                     <div class="risk-meter-fill" id="riskMeter" style="width: 0%"></div>
                 </div>
                 <div class="flex justify-between text-white/20 text-xs">
-                    <span>SAFE</span>
-                    <span>LOW</span>
-                    <span>MEDIUM</span>
-                    <span>HIGH</span>
-                    <span>CRITICAL</span>
+                    <span>SAFE</span><span>LOW</span><span>MEDIUM</span><span>HIGH</span><span>CRITICAL</span>
                 </div>
             </div>
 
-            <!-- Wallet Stats -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6" id="statsGrid"></div>
 
-            <!-- Summary -->
             <div class="card p-6 mb-6">
                 <div class="flex items-center gap-2 mb-4">
                     <span class="text-xl">📋</span>
@@ -287,7 +178,6 @@
                 <p class="text-white/70 leading-relaxed" id="summaryText"></p>
             </div>
 
-            <!-- Risk Factors + Positive Signals -->
             <div class="grid md:grid-cols-2 gap-6 mb-6">
                 <div class="card p-6">
                     <div class="flex items-center gap-2 mb-4">
@@ -305,7 +195,6 @@
                 </div>
             </div>
 
-            <!-- Recommendations -->
             <div class="card p-6 mb-6">
                 <div class="flex items-center gap-2 mb-4">
                     <span class="text-xl">💡</span>
@@ -314,12 +203,14 @@
                 <ul class="space-y-3" id="recommendations"></ul>
             </div>
 
-            <!-- Footer Note -->
-            <div class="card p-4 flex items-center gap-3">
-                <span class="text-2xl">🔐</span>
-                <div>
-                    <div class="text-white/60 text-sm">This analysis was performed using <span class="text-indigo-400 font-medium">OpenGradient's Trusted Execution Environment (TEE)</span> — ensuring verifiable, privacy-preserving AI inference on the blockchain.</div>
-                </div>
+            <!-- Footer - subtle, no AI mention -->
+            <div class="flex items-center justify-center gap-2 py-4 opacity-40">
+                <span class="text-xs text-white">🔐 Secured by</span>
+                <span class="text-xs text-indigo-400 font-medium">OpenGradient TEE</span>
+                <span class="text-white/20 text-xs">·</span>
+                <span class="text-xs text-white">x402 Protocol</span>
+                <span class="text-white/20 text-xs">·</span>
+                <span class="text-xs text-white">On-chain Verified</span>
             </div>
 
         </div>
@@ -333,28 +224,22 @@
         }
 
         function getRiskColor(score) {
-            if (score <= 20) return { color: '#10b981', bg: 'rgba(16,185,129,0.15)', text: 'text-emerald-400' };
-            if (score <= 40) return { color: '#84cc16', bg: 'rgba(132,204,22,0.15)', text: 'text-lime-400' };
-            if (score <= 60) return { color: '#f59e0b', bg: 'rgba(245,158,11,0.15)', text: 'text-amber-400' };
-            if (score <= 80) return { color: '#f97316', bg: 'rgba(249,115,22,0.15)', text: 'text-orange-400' };
-            return { color: '#ef4444', bg: 'rgba(239,68,68,0.15)', text: 'text-red-400' };
+            if (score <= 20) return { color: '#10b981', bg: 'rgba(16,185,129,0.15)' };
+            if (score <= 40) return { color: '#84cc16', bg: 'rgba(132,204,22,0.15)' };
+            if (score <= 60) return { color: '#f59e0b', bg: 'rgba(245,158,11,0.15)' };
+            if (score <= 80) return { color: '#f97316', bg: 'rgba(249,115,22,0.15)' };
+            return { color: '#ef4444', bg: 'rgba(239,68,68,0.15)' };
         }
 
         async function analyzeWallet() {
             const address = document.getElementById('walletInput').value.trim();
-            
-            if (!address) {
-                alert('Please enter a wallet address');
-                return;
-            }
+            if (!address) { alert('Please enter a wallet address'); return; }
 
-            // Show loading
             document.getElementById('loading').classList.remove('hidden');
             document.getElementById('results').classList.add('hidden');
             document.getElementById('errorBox').classList.add('hidden');
             document.getElementById('analyzeBtn').disabled = true;
 
-            // Loading text animation
             const loadingTexts = [
                 'Fetching blockchain data from Etherscan...',
                 'Analyzing transaction patterns...',
@@ -398,39 +283,35 @@
             document.getElementById('results').classList.remove('hidden');
 
             const analysis = data.analysis;
-            const walletData = data.wallet_data;
-            const score = analysis.risk_score;
+            // FIX: backend wallet_stats use karo
+            const walletData = data.wallet_stats || {};
+            const score = analysis.risk_score || 0;
             const colors = getRiskColor(score);
 
-            // Score circle
             document.getElementById('scoreNumber').textContent = score;
             const circle = document.getElementById('scoreCircle');
             circle.style.background = `radial-gradient(circle, ${colors.bg} 0%, transparent 70%)`;
             circle.style.border = `2px solid ${colors.color}30`;
+            document.getElementById('pulseRing').style.border = `2px solid ${colors.color}`;
 
-            const pulse = document.getElementById('pulseRing');
-            pulse.style.border = `2px solid ${colors.color}`;
-
-            // Risk badge
             const badge = document.getElementById('riskBadge');
-            badge.textContent = analysis.risk_level;
+            badge.textContent = analysis.risk_level || 'UNKNOWN';
             badge.style.background = colors.bg;
             badge.style.color = colors.color;
             badge.style.border = `1px solid ${colors.color}40`;
 
-            // Risk meter
             setTimeout(() => {
                 const meter = document.getElementById('riskMeter');
                 meter.style.width = score + '%';
                 meter.style.background = `linear-gradient(90deg, #10b981, ${colors.color})`;
             }, 100);
 
-            // Stats
+            // Stats - wallet_stats se sahi data
             const stats = [
-                { label: 'ETH Balance', value: walletData.eth_balance + ' ETH', icon: '💰' },
-                { label: 'Transactions', value: walletData.total_transactions, icon: '📊' },
-                { label: 'Failed TXs', value: walletData.failed_transactions, icon: '❌' },
-                { label: 'Tokens', value: walletData.token_transfer_count, icon: '🪙' }
+                { label: 'ETH Balance', value: walletData.eth_balance || '0 ETH', icon: '💰' },
+                { label: 'Transactions', value: walletData.total_transactions ?? '--', icon: '📊' },
+                { label: 'Failed TXs', value: walletData.failed_transactions ?? '--', icon: '❌' },
+                { label: 'Token Transfers', value: walletData.token_transfers ?? '--', icon: '🪙' }
             ];
 
             document.getElementById('statsGrid').innerHTML = stats.map(s => `
@@ -441,41 +322,21 @@
                 </div>
             `).join('');
 
-            // Summary
             document.getElementById('summaryText').textContent = analysis.summary || 'Analysis complete.';
 
-            // Risk factors
-            document.getElementById('riskFactors').innerHTML = 
-                (analysis.risk_factors.length ? analysis.risk_factors : ['No major risk factors detected'])
-                .map(f => `
-                    <li class="flex items-start gap-2">
-                        <span class="text-red-400 mt-0.5 shrink-0">⚠</span>
-                        <span class="text-white/70 text-sm">${f}</span>
-                    </li>
-                `).join('');
+            document.getElementById('riskFactors').innerHTML =
+                (analysis.risk_factors?.length ? analysis.risk_factors : ['No major risk factors detected'])
+                .map(f => `<li class="flex items-start gap-2"><span class="text-red-400 mt-0.5 shrink-0">⚠</span><span class="text-white/70 text-sm">${f}</span></li>`).join('');
 
-            // Positive signals
-            document.getElementById('positiveSignals').innerHTML = 
-                (analysis.positive_signals.length ? analysis.positive_signals : ['Keep monitoring your wallet'])
-                .map(s => `
-                    <li class="flex items-start gap-2">
-                        <span class="text-emerald-400 mt-0.5 shrink-0">✓</span>
-                        <span class="text-white/70 text-sm">${s}</span>
-                    </li>
-                `).join('');
+            document.getElementById('positiveSignals').innerHTML =
+                (analysis.positive_signals?.length ? analysis.positive_signals : ['No data available'])
+                .map(s => `<li class="flex items-start gap-2"><span class="text-emerald-400 mt-0.5 shrink-0">✓</span><span class="text-white/70 text-sm">${s}</span></li>`).join('');
 
-            // Recommendations
-            document.getElementById('recommendations').innerHTML = 
-                (analysis.recommendations.length ? analysis.recommendations : ['Stay vigilant'])
-                .map((r, i) => `
-                    <li class="flex items-start gap-3 p-3 bg-white/3 rounded-lg">
-                        <span class="text-indigo-400 font-bold text-sm shrink-0 mt-0.5">${i+1}.</span>
-                        <span class="text-white/70 text-sm">${r}</span>
-                    </li>
-                `).join('');
+            document.getElementById('recommendations').innerHTML =
+                (analysis.recommendations?.length ? analysis.recommendations : ['Stay vigilant'])
+                .map((r, i) => `<li class="flex items-start gap-3 p-3 bg-white/3 rounded-lg"><span class="text-indigo-400 font-bold text-sm shrink-0 mt-0.5">${i+1}.</span><span class="text-white/70 text-sm">${r}</span></li>`).join('');
         }
 
-        // Enter key support
         document.getElementById('walletInput').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') analyzeWallet();
         });
