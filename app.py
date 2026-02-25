@@ -43,7 +43,7 @@ CHAINS = {
         "symbol": "ETH",
         "explorer": "https://arbiscan.io"
     }
-},
+}
     "polygon": {
         "id": "137",
         "name": "Polygon",
