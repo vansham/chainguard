@@ -102,6 +102,21 @@ def fetch_eth_balance(address: str, chain_id: str) -> str:
 
 def fetch_transactions(address: str, chain_id: str) -> dict:
     try:
+        # Total count fetch karo
+        res_count = requests.get("https://api.etherscan.io/v2/api", params={
+            "chainid": chain_id,
+            "module": "account",
+            "action": "txlist",
+            "address": address,
+            "page": 1,
+            "offset": 10000,
+            "sort": "desc",
+            "apikey": ETHERSCAN_API_KEY
+        })
+        all_txs = res_count.json().get("result", [])
+        total = len(all_txs) if isinstance(all_txs, list) else 0
+
+        # Recent 20 for analysis
         res = requests.get("https://api.etherscan.io/v2/api", params={
             "chainid": chain_id,
             "module": "account",
@@ -114,8 +129,7 @@ def fetch_transactions(address: str, chain_id: str) -> dict:
         })
         txs = res.json().get("result", [])
         if not isinstance(txs, list):
-            return {"total": 0, "failed": 0, "contracts": 0, "failed_rate": 0}
-        total = len(txs)
+            return {"total": total, "failed": 0, "contracts": 0, "failed_rate": 0}
         failed = len([t for t in txs if t.get("isError") == "1"])
         contracts = len(set(t.get("to", "") for t in txs if t.get("to")))
         return {
