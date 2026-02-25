@@ -20,7 +20,7 @@ client = og.Client(private_key=PRIVATE_KEY)
 
 # One time token approval
 try:
-    opg_amount = Web3.to_wei(0.1, 'ether')
+    opg_amount = Web3.to_wei(1, "ether")
     client.llm.ensure_opg_approval(opg_amount)
     print("OPG approval successful!")
 except Exception as e:
