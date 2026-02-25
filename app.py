@@ -37,7 +37,7 @@ def fetch_eth_balance(address: str) -> str:
         res = requests.get("https://api.etherscan.io/v2/api", params={
             "module": "account", "action": "balance",
             "address": address, "tag": "latest",
-            "chainid": "1", "apikey": ETHERSCAN_API_KEY
+            "chainid": "1", "chainid": "1", "apikey": ETHERSCAN_API_KEY
         })
         data = res.json()
         if data["status"] == "1":
@@ -54,7 +54,7 @@ def fetch_transactions(address: str) -> dict:
         res = requests.get("https://api.etherscan.io/v2/api", params={
             "module": "account", "action": "txlist",
             "address": address, "page": 1, "offset": 20,
-            "sort": "desc", "chainid": "1", "apikey": ETHERSCAN_API_KEY
+            "sort": "desc", "chainid": "1", "chainid": "1", "apikey": ETHERSCAN_API_KEY
         })
         txs = res.json().get("result", [])
         if not isinstance(txs, list):
@@ -78,7 +78,7 @@ def fetch_tokens(address: str) -> dict:
         res = requests.get("https://api.etherscan.io/v2/api", params={
             "module": "account", "action": "tokentx",
             "address": address, "page": 1, "offset": 30,
-            "sort": "desc", "chainid": "1", "apikey": ETHERSCAN_API_KEY
+            "sort": "desc", "chainid": "1", "chainid": "1", "apikey": ETHERSCAN_API_KEY
         })
         txs = res.json().get("result", [])
         if not isinstance(txs, list):
