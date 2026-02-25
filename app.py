@@ -44,37 +44,7 @@ CHAINS = {
         "explorer": "https://arbiscan.io"
     }
 }
-    "polygon": {
-        "id": "137",
-        "name": "Polygon",
-        "symbol": "MATIC",
-        "explorer": "https://polygonscan.com"
-    },
-    "bnb": {
-        "id": "56",
-        "name": "BNB Chain",
-        "symbol": "BNB",
-        "explorer": "https://bscscan.com"
-    },
-    "arbitrum": {
-        "id": "42161",
-        "name": "Arbitrum",
-        "symbol": "ETH",
-        "explorer": "https://arbiscan.io"
-    },
-    "optimism": {
-        "id": "10",
-        "name": "Optimism",
-        "symbol": "ETH",
-        "explorer": "https://optimistic.etherscan.io"
-    },
-    "base": {
-        "id": "8453",
-        "name": "Base",
-        "symbol": "ETH",
-        "explorer": "https://basescan.org"
-    }
-}
+
 
 
 # =============================================
