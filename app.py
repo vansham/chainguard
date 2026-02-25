@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_file, send_file
 from flask_cors import CORS
 import opengradient as og
 from web3 import Web3
@@ -390,3 +390,7 @@ def health():
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
+
+@app.route('/')
+def home():
+    return send_file('index.html')
