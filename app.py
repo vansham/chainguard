@@ -37,6 +37,13 @@ CHAINS = {
         "symbol": "ETH",
         "explorer": "https://etherscan.io"
     },
+    "arbitrum": {
+        "id": "42161",
+        "name": "Arbitrum",
+        "symbol": "ETH",
+        "explorer": "https://arbiscan.io"
+    }
+},
     "polygon": {
         "id": "137",
         "name": "Polygon",
